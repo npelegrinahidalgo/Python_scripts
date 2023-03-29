@@ -10,10 +10,8 @@ Created on Fri Aug  6 18:30:37 2021
 
 # Comments highlighted (#~~~) to get code running  --> refer to comments for tweaking code
 
-# from picasso import io,postprocess
 import os
 import pandas as pd
-# from picasso import render
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
@@ -21,8 +19,8 @@ from sklearn.cluster import DBSCAN
 from skimage import filters,measure
 
 
-# Camera settings (ONI)
-Pixel_size=117
+# Camera settings (TIRFM)
+Pixel_size=103
 camera_gain=2.17
 camera_sensitivity=11.5
 camera_offset=500
@@ -35,33 +33,40 @@ torender=1
 to_cluster=1       
 
 # Settings
-image_width=684
-image_height=428
+image_width=512
+image_height=512
 gradient=7500
 drift_correction=0
 scale=8
 # precision_threshold=250 --> It is not used throughout the script
 eps_threshold=1
-minimum_locs_threshold=30
+minimum_locs_threshold=5
 prec_thresh=30
 
 
 # ~~~Make sure this corresponds to the actual filename~~~
 
-filename_contains=r"pS129_headers.txt"
+filename_contains=r"NR_FitResults.txt"
 
 # Folders:
 
 pathlist=[]
 
-
-# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/ONI/20220809_NPH_CA_aSyn_pS129/G51D_A3_pos_2/")
-# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/ONI/20220809_NPH_CA_aSyn_pS129/Ctl_A2_pos_2/")
-# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/ONI/20220809_NPH_CA_aSyn_pS129/Ctl_A2_pos_1/")
-# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/ONI/20220809_NPH_CA_aSyn_pS129/Ctl_A2_pos_0/")
-# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/ONI/20220809_NPH_CA_aSyn_pS129/G51D_A3_pos_3/")
-pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/ONI/20220809_NPH_CA_aSyn_pS129/G51D_A3_pos_0_5000frames/")
-pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/ONI/20220809_NPH_CA_aSyn_pS129/G51D_A3_pos_1/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/A2_500pM_NR+1nM_E2285_2023-03-01_15-53-04/")
+pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/A3_1X_perm_only_2023-03-01_17-36-27/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/A3_1X_perm__500pM_NR+1nM_E2285_2023-03-01_17-41-37/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/B2_100frames_25ms_500pM_NR+1nM_E2285_2023-03-01_16-24-09/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/B2_100frames_50ms_500pM_NR+1nM_E2285_2023-03-01_16-23-29/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/B2_500pM_NR+1nM_E2285_2023-03-01_16-26-50/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/B2_only_2023-03-01_16-07-40/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/B3_10X_perm_500pM_NR+1nM_E2285_2023-03-01_17-04-28/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/B3_10X_perm_500pM_NR+2nM_E2285_2023-03-01_17-16-23/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/B3_10X_perm_only_2023-03-01_17-01-18/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/A3_1X_perm__500pM_NR+2nM_E2285_2023-03-01_17-52-54/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/A3_1X_perm__500pM_NR+2nM_E2285_2023-03-01_18-08-14/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/C2_500pM_NR+1nM_E2285_2023-03-01_16-56-39/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/C2_only_2023-03-01_16-47-46/")
+# pathlist.append(r"/Volumes/Noe PhD 2/Microscopes/TIRFM/20230301_EVs_SiMPull/B3_10X_perm__500pM_NR+5nM_E2285_2023-03-01_18-20-56/")
 
 
 # Various functions
@@ -100,6 +105,7 @@ def SRGaussian(size, fwhm, center):
     return np.exp(-0.5 * (np.square(x-x0)/np.square(wx) + np.square(y-y0)/np.square(wy)) )
 
 def gkern(l,sigx,sigy):
+    
     """\
     creates gaussian kernel with side length l and a sigma of sig
     """
@@ -263,14 +269,11 @@ for path in pathlist:
     print(path)
     # Below is the path where I want all the DBSCAN files/images to be saved at:
     
-    save_path = os.path.join(path, str(eps_threshold) + "_"+ str(minimum_locs_threshold) + r"pS129_DBSCAN/")
+    save_path = os.path.join(path, str(eps_threshold) + "_"+ str(minimum_locs_threshold) + r"EVs_NR_DBSCAN/")
     if not os.path.exists(save_path):
         os.makedirs(save_path)
   
     
-    # ~~~Next line commented out --> replace path unnecessary(?)~~~
-    # path=path.replace("/Volumes/VERBATIM HD/210812_1nM590_timecourse/","/Users/Mathew/Documents/Current analysis/20210816_RRM_agg_ThT_added/")
-
     # Perform the fitting
 
     # Load the fits:
@@ -291,9 +294,9 @@ for path in pathlist:
     
     # ~~~ Make sure data importe the right way, check separator/delimiter~~~
     
-    loc_data = pd.read_table(fits_path, sep = '\t', header = 7)
+    loc_data = pd.read_table(fits_path, sep = '\t')
     
-    index_names = loc_data[loc_data['Precision']>prec_thresh].index
+    index_names = loc_data[loc_data['Precision (nm)']>prec_thresh].index
     loc_data.drop(index_names, inplace = True)
    
     path=path+"GDSCSMLM_"
@@ -304,8 +307,8 @@ for path in pathlist:
     
     # ~~~ Removed '(nm)' from 'Precision' column header (it is not there)~~~
     
-    precsx= np.array(loc_data['Precision'])
-    precsy= np.array(loc_data['Precision'])
+    precsx= np.array(loc_data['Precision (nm)'])
+    precsy= np.array(loc_data['Precision (nm)'])
     xcoords=np.array(loc_data['X'])
     ycoords=np.array(loc_data['Y'])
     
@@ -320,15 +323,15 @@ for path in pathlist:
     plt.show()
         
     # Generate points SR (ESMB method):
-    SR=generate_SR(coords)
+    # SR=generate_SR(coords)
     
-    imsr = Image.fromarray(SR)
-    imsr.save(save_path + 'SR_points_python.tif')
+    # imsr = Image.fromarray(SR)
+    # imsr.save(save_path + 'SR_points_python.tif')
     
-    SR_prec=generate_SR_prec(coords,precsx,precsy)
+    # SR_prec=generate_SR_prec(coords,precsx,precsy)
     
-    imsr = Image.fromarray(SR_prec)
-    imsr.save(save_path +str(eps_threshold) + "_" + str(minimum_locs_threshold)+'SR_width_python.tif')
+    # imsr = Image.fromarray(SR_prec)
+    # imsr.save(save_path +str(eps_threshold) + "_" + str(minimum_locs_threshold)+'SR_width_python.tif')
     
     # Cluster analysis
     if to_cluster==1:
@@ -365,6 +368,9 @@ for path in pathlist:
         
             # Generate the SR image.
             SR_Clu=generate_SR_cluster(coords,clusters)
+            plt.imshow(SR_Clu,vmin=0, vmax=0.1)
+            
+            plt.show()
             
             imsr = Image.fromarray(SR_Clu)
             imsr.save(save_path +str(eps_threshold) + "_" + str(minimum_locs_threshold)+'SR_points_python_clustered.tif')
