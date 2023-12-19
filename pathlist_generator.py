@@ -10,18 +10,21 @@ Created on Fri Jun 10 19:45:03 2022
 import os
 import numpy as np
 import pandas as pd
+import re
 
 
 def init():
-    fp = (r"/Volumes/Noe PhD 2/Microscopes/ONI/20220809_NPH_CA/Ctl_A2_pos_0/")
+    fp = (r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_1/")
     print_dirs(2, fp)
 
 def print_dirs(step, fp):
     print('\n\n')
-    count = 0
+    count = 150
     done = []
     pathlist = []
     for root, dirs, files in os.walk(fp):
+        
+        
         for name in files:
             if step == 1:
                 if 'posZ0.tif' in name:
@@ -33,13 +36,19 @@ def print_dirs(step, fp):
                         count += 1
                         
             if step == 2:
+                
                 if 'posZ0.tif' in name:
                     for_py = 'pathlist.append(r"{0}/")'.format(root)
+                
+                            
+                
                     if for_py not in pathlist:
                         pathlist.append(root)
                     
                         print(for_py)
-
+    print(len(pathlist))
+    
+    
 init()
 
                 
