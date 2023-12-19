@@ -6,7 +6,7 @@ Created on Tue Mar  7 13:28:34 2023
 @author: pele
 
 Script to analyse EV data on diffraction-limited data --> Use 638 as mask (EVs labelled with AF647) and compare to 561 (AB signal)
-
+Here the coincidence is calculated per pixel only, instead of per individual EV (i.e. particle)
 
 """
 

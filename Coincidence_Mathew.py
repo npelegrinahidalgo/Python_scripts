@@ -19,12 +19,12 @@ from skimage.filters import threshold_local
 
 # Root path - where to save
 
-root_path="/Volumes/Noe PhD 2/Microscopes/ONI/20230414_NPH_SiMPull_mouse_EVs/A4_500pM_NR+1nM_E2285/pos_0/"
+root_path="/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_0/"
 
 # These are the names of the files to image:
 
-green_image="1_5EVs_NR_DBSCAN/1_5SR_points_python_clustered.tif"
-red_image="1_5EVs_exWAGO_mapped_DBSCAN/1_5exWAGO_mapped_SR_points_python_clustered.tif"
+green_image="561_mapped.tif"
+red_image="638_cropped.tif"
 
 
 
