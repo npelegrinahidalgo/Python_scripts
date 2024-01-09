@@ -11,7 +11,8 @@ This script will
 
 (2) Label all particles (EVs) once thresholded
 
-(3) Measure the specified properties of these particles already labelled
+(3) Measure the specified properties of these particles already labelled, including intensity
+
 
 """
 
@@ -95,320 +96,187 @@ def feature_coincidence(binary_image1,binary_image2):
     
     return total_labels,coincident_features_image
 
-def calculate_intensity_coinc(coinc_im,image):
-    
-    int_coinc_im = coinc_im*image
-    
-    int_coinc_values = int_coinc_im
-    
-    for i in range(len(int_coinc_im)):
-        for j in range(len(int_coinc_im[i])):
-            
-        
-            if int_coinc_im[i][j] > 0:
-                               
-                int_coinc_values[i][j] = int_coinc_im[i][j]
-        
-    mean_int = sum(int_coinc_values)/len(int_coinc_values)
-    
-    return int_coinc_im, mean_int
-    
-    
+def analyse_labelled_image(labelled_image,original_image):
+    measure_image=measure.regionprops_table(labelled_image,intensity_image=original_image,properties=('area','perimeter','centroid','orientation','major_axis_length','minor_axis_length','mean_intensity','max_intensity'))
+    measure_dataframe=pd.DataFrame.from_dict(measure_image)
+    return measure_dataframe
+
 
 root_path = r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/"
 
 # inpaths to analyse
+
 pathlist=[]
 
-pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_0/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_1/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_1/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_10/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_11/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_12/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_13/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_14/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_15/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_16/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_17/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_18/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_19/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_2/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_20/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_21/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_22/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_23/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_24/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_3/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_4/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_5/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_6/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_7/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_8/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/pos_9/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_0/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_1/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_10/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_11/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_12/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_13/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_14/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_15/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_16/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_17/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_18/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_19/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_2/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_20/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_21/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_22/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_23/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_24/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_3/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_4/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_5/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_6/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_7/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_8/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/pos_9/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C2/pos_0/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C2/pos_1/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C2/pos_2/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C2/pos_3/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C2/pos_4/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C2/pos_5/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C2/pos_6/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_0/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_1/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_10/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_11/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_12/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_13/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_14/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_15/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_16/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_17/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_18/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_19/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_2/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_20/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_21/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_22/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_23/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_24/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_3/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_4/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_5/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_6/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_7/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_8/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/pos_9/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_0/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_1/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_10/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_11/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_12/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_13/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_14/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_15/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_16/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_17/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_18/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_19/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_2/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_20/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_21/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_22/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_23/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_24/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_3/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_4/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_5/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_6/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_7/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_8/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/pos_9/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_0/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_1/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_10/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_11/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_12/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_13/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_14/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_15/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_16/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_17/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_18/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_19/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_2/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_20/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_21/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_22/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_23/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_24/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_3/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_4/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_5/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_6/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_7/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_8/")
-# pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/pos_9/")
-
-
-
+pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/")
+pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/")
+pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/")
+pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/")
+pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/")
 
 
 
 thr_set_638 = 882.9230769230769
 thr_set_561 = 6407.307692307692
 
+
 image_tag_638 = "638_cropped.tif"
 image_tag_561 = "561_cropped.tif"
 
 EV_table = pd.DataFrame(columns=["File", "Number of EVs", "Coincidence", "Fraction coincidence", "ID"])
 
+all_measurements = pd.DataFrame(columns = ['file','area','perimeter','centroid','orientation','major_axis_length','minor_axis_length','mean_intensity','max_intensity'])
+
+
 
 for path in pathlist:
     
-    image_638 = path + image_tag_638
-    image_561 = path + image_tag_561
+    # Make dataframe for measure here
+    
+    measurement_table = pd.DataFrame(columns = ['file','area','perimeter','centroid','orientation','major_axis_length','minor_axis_length','mean_intensity','max_intensity'])
     
     
-    # Load image
-    im_638 = load_im(image_638)
-    plt.imshow(im_638)
-    
-    # Perform thresholding using function defined above
-    
-    thr_638, boolean_im_638 = threshold_638(im_638)
-    
-    # Convert boolean thresholded image to binary for labelling
-    binary_im_638 = boolean_im_638.astype(int)
-
-    # Perform labelling using funciton defined above
-    features, labels = label_image(binary_im_638)    
-    plt.imshow(labels)
-    plt.colorbar()
-    plt.show()
-    plt.show()
-    
-    # Calculate coincidence using coincidence function
-        # First we need to threshold the green channel (561) using threshold function
-    
-    im_561 = load_im(image_561)
-    
-    thr_561, boolean_im_561 = threshold_561(im_561)
-    
-    binary_im_561 = boolean_im_561.astype(int)
-    
-    
-    # Use coincidence features function -- Still trying to understand fully how this works -- 
-    
-    red_coinc_list, coinc_image=feature_coincidence(binary_im_638,binary_im_561)
-
-    # From coinc function, calculate fraction of coincidence
-    fraction = red_coinc_list/features
-    
-    # Round it up to fit decimals (it's numbers between 1 & 0 so you need decimals on!)
-    fraction_rounded = round(fraction, 2)
-    
-    # Calculate intensity of each feature
-    
-    int_coinc_561, mean_int_561 = calculate_intensity_coinc(coinc_image,im_561)
-    plt.imshow(int_coinc_561)
-    plt.colorbar()
-    plt.show()
-    
-    
-    if features == 0:
-            
-        if str("A2") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": 0, "ID": str("EVs only")},ignore_index=True)
+    for i in range(0,25):
+  
+        path_within = path + 'pos_' + str(i) + '/'
+        print(path)
         
-        if str("B2") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": 0, "ID": str("No EVs")},ignore_index=True)
+        image_638 = path_within + image_tag_638
+        image_561 = path_within + image_tag_561
         
-        if str("C2") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": 0, "ID": str("0.005% Triton")},ignore_index=True)
         
-        if str("A4") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": 0, "ID": str("0.01% Triton")},ignore_index=True)
+        # Load image
+        im_638 = load_im(image_638)
+        plt.imshow(im_638)
         
-        if str("B4") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": 0, "ID": str("0.05% Triton")},ignore_index=True)
+        # Perform thresholding using function defined above
+        thr_638, boolean_im_638 = threshold_638(im_638)
         
-        if str("C4") in path:
+        # Convert boolean thresholded image to binary for labelling
+        binary_im_638 = boolean_im_638.astype(int)
+    
+        # Calculate coincidence using coincidence function
+            # First we need to threshold the green channel (561) using threshold function as done for red channel
+        
+        im_561 = load_im(image_561)
+        
+        thr_561, boolean_im_561 = threshold_561(im_561)
+        
+        binary_im_561 = boolean_im_561.astype(int)
+        
+        
+            # Use coincidence features function -- Still trying to understand fully how this works -- 
+        
+        red_coinc_list, coinc_image=feature_coincidence(binary_im_638,binary_im_561)
+        
+        # Now, to obtain properties about coincidence image:
+            #  First, run label image:
+        
+        features, labels_red = label_image(coinc_image)
+        
+            # Then, analyse labelled image using function
+        
+        measurements_red=analyse_labelled_image(labels_red,im_561)
+        
+        # From coinc function, calculate fraction of coincidence
+        
+        if features == 0:
             
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": 0, "ID": str("0.1% Triton")},ignore_index=True)
+            fraction = 0
+        
+        else:
+            
+            fraction = red_coinc_list/features
+        
+        # Round it up to fit decimals (it's numbers between 1 & 0 so you need decimals on!)
+        fraction_rounded = round(fraction, 4)
+        
+        # Concatenate all measurement files        
+        measurement_table = pd.concat([measurement_table, measurements_red], axis=0)
+        measurement_table["file"] = str(path)
+    
+    # Save concatenated dataframe 
+    measurement_table.to_csv(path + "All_measurements.csv", sep = "\t")
+    
+    all_measurements = pd.concat([all_measurements,measurement_table], axis = 0)
+    
+    # Mean, SD etc. of intensities. 
     
 
-    else:
         
-        if str("A2") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("EVs only")},ignore_index=True)
+    if str("A2") in path:
         
-        if str("B2") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("No EVs")},ignore_index=True)
-        
-        if str("C3") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.005% Triton")},ignore_index=True)
-        
-        if str("A4") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.01% Triton")},ignore_index=True)
-        
-        if str("B4") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.05% Triton")},ignore_index=True)
-        
-        if str("C4") in path:
-            
-            EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.1% Triton")},ignore_index=True)
+        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("EVs only")},ignore_index=True)
     
+    if str("B2") in path:
+        
+        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("No EVs")},ignore_index=True)
+    
+    if str("C2") in path:
+        
+        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.005% Triton")},ignore_index=True)
+    
+    if str("A4") in path:
+        
+        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.01% Triton")},ignore_index=True)
+    
+    if str("B4") in path:
+        
+        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.05% Triton")},ignore_index=True)
+    
+    if str("C4") in path:
+        
+        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.1% Triton")},ignore_index=True)
 
+
+pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C2/")
+
+
+    
 EV_table.to_csv(root_path + "Coincidence_per_EV_C2_only.csv", sep = "\t")
+all_measurements.to_csv(root_path + 'all_measurements.csv', sep = '\t')
+
+sns.boxplot(x='file', y='mean_intensity', data=all_measurements, showcaps=True, showmeans=True)
+sns.stripplot(x='file', y='mean_intensity', data=all_measurements, color='black', alpha=0.5)
+plt.xticks(rotation=45)
+plt.xticks(ticks=[0, 1, 2, 3, 4], labels=['No perm', '0.01% Triton', 'No EVs','0.05% Triton', '0.1% Triton'])  # Replace with your specific names
+plt.xlabel('')  # Set an empty string as x-axis label
+plt.legend()
+plt.tight_layout()
+plt.savefig(root_path + 'Intensity_exWAGO.png', dpi=300)
+plt.show()
 
 
+# data = EV_table
 
-    
-data = EV_table
+# df = pd.DataFrame(data)
 
-df = pd.DataFrame(data)
-
-mean_values = df.groupby('ID')['Number of EVs'].mean().reset_index()
+# mean_values = df.groupby('ID')['Number of EVs'].mean().reset_index()
 
 
 # Plot total No EVs:
 
-sns.boxplot(x='ID', y='Number of EVs', data=df, showcaps=True, showmeans=True)
-sns.stripplot(x='ID', y='Number of EVs', data=df, color='black', alpha=0.5)
-plt.xticks(rotation=45)
-plt.xlabel('')  # Set an empty string as x-axis label
-plt.tight_layout()
-plt.legend()
-# plt.savefig(root_path + 'Number_of_EVs.png', dpi=300)
-plt.show()
+# sns.boxplot(x='ID', y='Number of EVs', data=df, showcaps=True, showmeans=True)
+# sns.stripplot(x='ID', y='Number of EVs', data=df, color='black', alpha=0.5)
+# plt.xticks(rotation=45)
+# plt.xlabel('')  # Set an empty string as x-axis label
+# plt.tight_layout()
+# plt.legend()
+# # plt.savefig(root_path + 'Number_of_EVs.png', dpi=300)
+# plt.show()
 
 
 
 # Plot the fraction coincidence
 
 
-sns.boxplot(x='ID', y='Fraction coincidence', data=df, showcaps=True, showmeans=True)
-sns.stripplot(x='ID', y='Fraction coincidence', data=df, color='black', alpha=0.5)
-plt.xticks(rotation=45)
-plt.xlabel('')  # Set an empty string as x-axis label
-plt.tight_layout()
-plt.savefig(root_path + 'Fraction exWAGO.png', dpi=300)
-plt.show()
+# sns.boxplot(x='ID', y='Fraction coincidence', data=df, showcaps=True, showmeans=True)
+# sns.stripplot(x='ID', y='Fraction coincidence', data=df, color='black', alpha=0.5)
+# plt.xticks(rotation=45)
+# plt.xlabel('')  # Set an empty string as x-axis label
+# plt.tight_layout()
+# plt.savefig(root_path + 'Fraction exWAGO.png', dpi=300)
+# plt.show()
 
 
 
