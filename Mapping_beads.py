@@ -85,25 +85,25 @@ ax[2].set_title('Transformed Overlay')
 
 
 
-for path in pathList:
+# for path in pathList:
 
-    image_file=path+Filename
+#     image_file=path+Filename
 
-    # Load the image file:
-    img_to_convert = io.imread(image_file)
+#     # Load the image file:
+#     img_to_convert = io.imread(image_file)
     
     
-    # Extract the red and green parts of the image         
-    greenSlice2 = (img_to_convert[0:256,0:512]).astype('uint16')
-    redSlice2 = (img_to_convert[256:512,0:512]).astype('uint16')
+#     # Extract the red and green parts of the image         
+#     greenSlice2 = (img_to_convert[0:256,0:512]).astype('uint16')
+#     redSlice2 = (img_to_convert[256:512,0:512]).astype('uint16')
     
-    newresult=ird.transform_img_dict(greenSlice2, result, bgval=None, order=1, invert=False).astype('uint16')
+#     newresult=ird.transform_img_dict(greenSlice2, result, bgval=None, order=1, invert=False).astype('uint16')
     
-    im = Image.fromarray(newresult)
-    im.save(path+'green_trans.tif')
+#     im = Image.fromarray(newresult)
+#     im.save(path+'green_trans.tif')
     
-    im2 = Image.fromarray(greenSlice2)
-    im2.save(path+'green.tif')
+#     im2 = Image.fromarray(greenSlice2)
+#     im2.save(path+'green.tif')
     
-    im3 = Image.fromarray(redSlice2)
-    im3.save(path+'red.tif')
+#     im3 = Image.fromarray(redSlice2)
+#     im3.save(path+'red.tif')

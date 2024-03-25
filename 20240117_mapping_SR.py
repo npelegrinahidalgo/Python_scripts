@@ -40,7 +40,7 @@ prec_thresh=40
 
 
 if warningDisabled:
-    warnings.simplefilter(action='ignore', category=FutureWarning) #
+    warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Dataframes, lists, etc:
     

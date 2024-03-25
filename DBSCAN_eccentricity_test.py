@@ -257,7 +257,7 @@ def generate_SR_prec_cluster(coords,precsx,precsy,clusters):
    
 def analyse_labelled_image(labelled_image):
     
-    measure_image=measure.regionprops_table(labelled_image,intensity_image=labelled_image,properties=('area','perimeter','centroid','orientation','major_axis_length','minor_axis_length','mean_intensity','max_intensity'))
+    measure_image=measure.regionprops_table(labelled_image,intensity_image=labelled_image,properties=('label','area','perimeter','centroid','coords','orientation','major_axis_length','minor_axis_length','mean_intensity','max_intensity'))
     measure_dataframe=pd.DataFrame.from_dict(measure_image)
     return measure_dataframe
 
@@ -269,8 +269,7 @@ if to_cluster==1:
 
 
 for path in pathlist:
-    
-    
+
     print(path)
     check_file = os.path.join(path,"X0Y0R3W3_638_0_SR.tif")
     
@@ -286,13 +285,14 @@ for path in pathlist:
     for row in rows:
         
         for well in wells:
+            
 
             
             FOV = "X0Y0R" + str(row) + "W" + str(well) + "_"
                 
             # Below is the path where I want all the DBSCAN files/images to be saved at:
         
-            save_path = os.path.join(path, FOV + str(eps_threshold) + "_"+ str(minimum_locs_threshold) + name_tag + "DBSCAN_new_mapped/")
+            save_path = os.path.join(path, FOV + str(eps_threshold) + "_"+ str(minimum_locs_threshold) + name_tag + "DBSCAN_eccentricity_test/")
             if not os.path.exists(save_path):
                 os.makedirs(save_path)
         
@@ -350,7 +350,7 @@ for path in pathlist:
                 # Cluster analysis
                 if to_cluster==1:
                     clusters=cluster(coords)
-                
+                    
                     # Check how many localisations per cluster
                  
                     cluster_list=clusters.tolist()    # Need to convert the dataframe into a list- so that we can use the count() function. 
@@ -367,7 +367,7 @@ for path in pathlist:
                     if len(cluster_contents)>0:
                         average_locs=sum(cluster_contents)/len(cluster_contents)
                  
-                        plt.hist(cluster_contents, bins = 20,range=[0,200], rwidth=0.9,color='#607c8e') # Plot a histogram. 
+                        plt.hist(cluster_contents, bins = 50,range=[0,200], rwidth=0.9,color='#607c8e') # Plot a histogram. 
                         plt.xlabel('Localisations per cluster')
                         plt.ylabel('Number of clusters')
                         plt.savefig(save_path +str(eps_threshold) + "_" + str(minimum_locs_threshold)+ name_tag + 'Localisations.pdf')
@@ -443,13 +443,16 @@ for path in pathlist:
                         mean_length=length.mean()
                         std_length=length.std()
                         
-                        ratio=measurements['minor_axis_length']/measurements['major_axis_length']
+                        
+                            
+                        ratio=(measurements['minor_axis_length']/measurements['major_axis_length'])
                         plt.hist(ratio, bins = 50,range=[0,1], rwidth=0.9,color='#ff0000')
                         plt.xlabel('Eccentricity',size=20)
                         plt.ylabel('Number of Features',size=20)
                         plt.title('Cluster Eccentricity',size=20)
                         plt.savefig(save_path +str(eps_threshold) + "_" + str(minimum_locs_threshold) + name_tag +"Ecc.pdf")
                         plt.show()
+                        
                         
                         median_ratio=ratio.median()
                         mean_ratio=ratio.mean()
@@ -459,6 +462,46 @@ for path in pathlist:
                         if len(measurements)==len(cluster_contents):
                             measurements['Number_of_locs']=cluster_contents
                             measurements.to_csv(save_path + str(eps_threshold) + "_" + str(minimum_locs_threshold)+ name_tag + 'Metrics.csv', sep = '\t')
+                        
+                        # Filter clusters with specific eccentricity value:
+                        
+                            
+                        filtered_clusters = measurements[measurements['Eccentricity'] > 0.6]
+                        
+                        
+                        
+                        
+                        filtered_clu_img_mask = np.zeros_like(labelled)
+                        
+                        for line in filtered_clusters["coords"]:
+                            for coordinate in line:
+                                
+                                filtered_clu_img_mask[coordinate[0], coordinate[1]] = 1
+                        
+                        filtered_clu_img = filtered_clu_img_mask * SR
+                        to_save_img = Image.fromarray(filtered_clu_img)
+                        to_save_img.save("/Users/pele/Desktop/ecc_filtered_clusters.tif")
+                        
+
+                        
+
+                        
+                    
+                            
+                        
+                        
+                        # Plot new filtered clusters:
+                        
+                        
+                            
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
                         
                         Output_overall = pd.DataFrame(columns=['xw','yw','cluster'])
                         
@@ -484,7 +527,9 @@ for path in pathlist:
                 Output_all_cases = Output_all_cases.append({'Path':path,'Number_of_clusters':'no locs','Points_per_cluster_mean':'0','Points_per_cluster_SD':'0','Points_per_cluster_med':'0',
                                                     'Area_mean':'0','Area_sd':'0','Area_med':'0','Length_mean':'0','Length_sd':'0','Length_med':'0',
                                                     'Ratio_mean':'0','Ratio_sd':'0','Ratio_med':'0'},ignore_index=True)
-
+    print("Clustering of " + path + "finished")
+    
+    
 if to_cluster==1:
     
     Output_all_cases.to_csv(path + str(eps_threshold) + '_' + str(minimum_locs_threshold) + name_tag + '_clusters_data_GDSC_all_metrics.csv', sep = '\t')

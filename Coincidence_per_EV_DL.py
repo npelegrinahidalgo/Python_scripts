@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from skimage import filters,measure
-from skimage.filters import threshold_local
+import skimage.filters as thr
 import seaborn as sns
 
 ######    Functions to be used defined below    ########
@@ -38,23 +38,35 @@ def load_im(to_load):
     
     return image
 
+def threshold(image_DL):
+    
+    background = thr.threshold_local(image_DL, 5, offset=np.percentile(image_DL, 1), method='median')
+    
+    image_no_bg = image_DL - background
+    
+    threshold_value = thr.threshold_otsu(image_no_bg)
+    
+    image_thr = image_no_bg > threshold_value
+    
+    
+    return threshold_value, image_thr
     
 # Apply threshold to image and obtain binary image
-def threshold_638(input_image):
+# def threshold(input_image):
     
-    threshold_value_638 = thr_set_638
+#     threshold_value_638 = thr_set_638
     
-    binary_image_638 = input_image > threshold_value_638
+#     binary_image_638 = input_image > threshold_value_638
 
-    return threshold_value_638,binary_image_638
+#     return threshold_value_638,binary_image_638
 
-def threshold_561(input_image):
+# def threshold_561(input_image):
     
-    threshold_value_561 = thr_set_561
+#     threshold_value_561 = thr_set_561
     
-    binary_image_561 = input_image > threshold_value_561
+#     binary_image_561 = input_image > threshold_value_561
 
-    return threshold_value_561,binary_image_561
+#     return threshold_value_561,binary_image_561
 
 
 # Label image to identify all EVs in it
@@ -103,26 +115,33 @@ def analyse_labelled_image(labelled_image,original_image):
     return measure_dataframe
 
 
-root_path = r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/"
+root_path = r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/"
 
 # inpaths to analyse
 
 pathlist=[]
 
-pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A2/")
-pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/A4/")
-pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B2/")
-pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/B4/")
-pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C4/")
+pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B2+5uM_DiD_prewash/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B2+5uM_DiD_wash/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B2_only/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B3+5nM_NR_prewash/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B3+5nM_NR_wash/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B3_only/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B4+150nM_Apo-15_prewash-1/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B4+150nM_Apo-15_wash/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B4+150nM_Apo-15_wash-2/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B4_only/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B5_only/Processed images/")
+# pathlist.append(r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/B4+150nM_Apo-15_wash-1_100_frames/Processed images/")
 
 
 
-thr_set_638 = 882.9230769230769
-thr_set_561 = 6407.307692307692
+# thr_set_638 = 882.9230769230769
+# thr_set_561 = 6407.307692307692
 
 
-image_tag_638 = "638_cropped.tif"
-image_tag_561 = "561_cropped.tif"
+image_tag_638 = "647_projection.tif"
+image_tag_561 = "488_projected.tif"
 
 EV_table = pd.DataFrame(columns=["File", "Number of EVs", "Coincidence", "Fraction coincidence", "ID"])
 
@@ -137,9 +156,9 @@ for path in pathlist:
     measurement_table = pd.DataFrame(columns = ['file','area','perimeter','centroid','orientation','major_axis_length','minor_axis_length','mean_intensity','max_intensity'])
     
     
-    for i in range(0,25):
+    for i in range(0,5):
   
-        path_within = path + 'pos_' + str(i) + '/'
+        path_within = path + 'pos_' + str(i) + "_"
         print(path)
         
         image_638 = path_within + image_tag_638
@@ -151,7 +170,7 @@ for path in pathlist:
         plt.imshow(im_638)
         
         # Perform thresholding using function defined above
-        thr_638, boolean_im_638 = threshold_638(im_638)
+        thr_638, boolean_im_638 = threshold(im_638)
         
         # Convert boolean thresholded image to binary for labelling
         binary_im_638 = boolean_im_638.astype(int)
@@ -161,14 +180,14 @@ for path in pathlist:
         
         im_561 = load_im(image_561)
         
-        thr_561, boolean_im_561 = threshold_561(im_561)
+        thr_561, boolean_im_561 = threshold(im_561)
         
         binary_im_561 = boolean_im_561.astype(int)
         
         
             # Use coincidence features function -- Still trying to understand fully how this works -- 
         
-        red_coinc_list, coinc_image=feature_coincidence(binary_im_638,binary_im_561)
+        red_coinc_list, coinc_image=feature_coincidence(binary_im_561,binary_im_638)
         
         # Now, to obtain properties about coincidence image:
             #  First, run label image:
@@ -195,6 +214,9 @@ for path in pathlist:
         # Concatenate all measurement files        
         measurement_table = pd.concat([measurement_table, measurements_red], axis=0)
         measurement_table["file"] = str(path)
+        
+        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str(path[65] + path[66])},ignore_index=True)
+
     
     # Save concatenated dataframe 
     measurement_table.to_csv(path + "All_measurements.csv", sep = "\t")
@@ -205,47 +227,46 @@ for path in pathlist:
     
 
         
-    if str("A2") in path:
+    # if str("A2") in path:
         
-        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("EVs only")},ignore_index=True)
+    #     EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("EVs only")},ignore_index=True)
     
-    if str("B2") in path:
+    # if str("B2") in path:
         
-        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("No EVs")},ignore_index=True)
+    #     EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("No EVs")},ignore_index=True)
     
-    if str("C2") in path:
+    # if str("C2") in path:
         
-        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.005% Triton")},ignore_index=True)
+    #     EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.005% Triton")},ignore_index=True)
     
-    if str("A4") in path:
+    # if str("A4") in path:
         
-        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.01% Triton")},ignore_index=True)
+    #     EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.01% Triton")},ignore_index=True)
     
-    if str("B4") in path:
+    # if str("B4") in path:
         
-        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.05% Triton")},ignore_index=True)
+    #     EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.05% Triton")},ignore_index=True)
     
-    if str("C4") in path:
+    # if str("C4") in path:
         
-        EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.1% Triton")},ignore_index=True)
+    #     EV_table = EV_table.append({"File":path, "Number of EVs": int(features),"Coincidence": int(red_coinc_list), "Fraction coincidence": fraction_rounded, "ID": str("0.1% Triton")},ignore_index=True)
 
 
-pathlist.append(r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_2/C2/")
 
 
     
-EV_table.to_csv(root_path + "Coincidence_per_EV_C2_only.csv", sep = "\t")
+EV_table.to_csv(root_path + "Coincidence_per_EV.csv", sep = "\t")
 all_measurements.to_csv(root_path + 'all_measurements.csv', sep = '\t')
 
 sns.boxplot(x='file', y='mean_intensity', data=all_measurements, showcaps=True, showmeans=True)
-sns.stripplot(x='file', y='mean_intensity', data=all_measurements, color='black', alpha=0.5)
-plt.xticks(rotation=45)
-plt.xticks(ticks=[0, 1, 2, 3, 4], labels=['No perm', '0.01% Triton', 'No EVs','0.05% Triton', '0.1% Triton'])  # Replace with your specific names
-plt.xlabel('')  # Set an empty string as x-axis label
-plt.legend()
-plt.tight_layout()
-plt.savefig(root_path + 'Intensity_exWAGO.png', dpi=300)
-plt.show()
+# sns.stripplot(x='file', y='mean_intensity', data=all_measurements, color='black', alpha=0.5)
+# plt.xticks(rotation=45)
+# plt.xticks(ticks=[0, 1, 2, 3, 4], labels=['No perm', '0.01% Triton', 'No EVs','0.05% Triton', '0.1% Triton'])  # Replace with your specific names
+# plt.xlabel('')  # Set an empty string as x-axis label
+# plt.legend()
+# plt.tight_layout()
+# plt.savefig(root_path + 'Intensity_exWAGO.png', dpi=300)
+# plt.show()
 
 
 # data = EV_table
