@@ -4,6 +4,8 @@
 Created on Fri Jun 10 19:45:03 2022
 
 @author: pele
+
+To get well (conditions) folders change "for names in files" to "for folder in dirs" in prin_dirs() function
 """
 # ~~~This is a script to generate a pathlist to open the desired list of pahts
 
@@ -13,21 +15,23 @@ import pandas as pd
 import re
 
 
+
 def init():
-    fp = (r"/Volumes/Noe PhD 3/Microscopes/ONI/20231208_NPH_EVs_PLL_protocol_plate_1/")
+    fp = (r"/Volumes/Noe PhD 4/Microscopes/ONI/20240308_NPH_SiMPull_EVs_ID3/")
     print_dirs(2, fp)
 
 def print_dirs(step, fp):
     print('\n\n')
-    count = 150
+    count = 0
     done = []
     pathlist = []
     for root, dirs, files in os.walk(fp):
         
         
-        for name in files:
+        for folder in dirs:
+            
             if step == 1:
-                if 'posZ0.tif' in name:
+                if 'pos_0' in folder:
                 
                     for_ij = r'path[{0}]="{1}\";'.format(count, root)
                     if root not in done:
@@ -37,15 +41,18 @@ def print_dirs(step, fp):
                         
             if step == 2:
                 
-                if 'posZ0.tif' in name:
-                    for_py = 'pathlist.append(r"{0}/")'.format(root)
-                
-                            
+                if 'Processed images' in folder:
+                    
+                    for_py = 'pathlist.append(r"{0}/")'.format(root + "/" + folder)
                 
                     if for_py not in pathlist:
                         pathlist.append(root)
+                        
                     
-                        print(for_py)
+                    
+                    print(for_py)
+                        
+                        
     print(len(pathlist))
     
     
